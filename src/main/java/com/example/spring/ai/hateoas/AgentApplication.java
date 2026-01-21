@@ -3,6 +3,9 @@ package com.example.spring.ai.hateoas;
 import java.util.Scanner;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.ToolCallAdvisor;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -27,13 +30,23 @@ public class AgentApplication {
 	public CommandLineRunner run(ChatClient.Builder chatClientBuilder,
 			@Value("${hateoas.agent.entrypoint:http://localhost:8080/}") String entryPoint,
 			@Value("${classpath:/system_prompt.md}") Resource systemPrompt) {
+
 		return args -> {
 
 			var chatClient = chatClientBuilder // @formatter:off
-				.defaultSystem(s -> s.text(systemPrompt)
-					.param("ENTRY_POINT", entryPoint))
+				// System prompt
+				.defaultSystem(s -> s.text(systemPrompt).param("ENTRY_POINT", entryPoint))
+				
+				// Add REST tools
 				.defaultTools(new RestTools(RestClient.create()))
-				.build(); // @formatter:on
+
+				// Configure Advisors
+				.defaultAdvisors(				
+					ToolCallAdvisor.builder().disableMemory().build(),
+					MessageChatMemoryAdvisor.builder(MessageWindowChatMemory.builder().build()).build(),
+					MyLoggingAdvisor.builder().build())
+				.build(); 
+				// @formatter:on
 
 			// Start the chat loop
 			System.out.println("\nI am Hateoas agent.\n");

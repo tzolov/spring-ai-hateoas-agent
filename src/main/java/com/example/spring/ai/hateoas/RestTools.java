@@ -17,9 +17,6 @@ package com.example.spring.ai.hateoas;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.http.MediaType;
@@ -30,8 +27,6 @@ import org.springframework.web.client.RestClient;
  * @author Christian Tzolov
  */
 public class RestTools {
-
-	private static final Logger logger = LoggerFactory.getLogger(RestTools.class);
 
 	private final RestClient restClient;
 
@@ -45,7 +40,6 @@ public class RestTools {
 	@Tool(description = "Sends a GET request to the specified URL and returns the response status code and body.",
 			name = "get_request")
 	public HttpResponse getRequest(@ToolParam(description = "The URL to send the GET request to") String url) {
-		logger.info("GET request to: {}", url);
 		ResponseEntity<Object> response = this.restClient.get().uri(url).retrieve().toEntity(Object.class);
 		return new HttpResponse(response.getStatusCode().value(), response.getBody());
 	}
@@ -54,13 +48,14 @@ public class RestTools {
 			name = "post_request")
 	public HttpResponse postRequest(@ToolParam(description = "The URL to send the POST request to") String url,
 			@ToolParam(description = "The request body as a map of key-value pairs") Map<String, Object> body) {
-		logger.info("POST request to: {} with body: {}", url, body);
+
 		ResponseEntity<Object> response = this.restClient.post()
 			.uri(url)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(body)
 			.retrieve()
 			.toEntity(Object.class);
+
 		return new HttpResponse(response.getStatusCode().value(), response.getBody());
 	}
 
@@ -68,7 +63,7 @@ public class RestTools {
 			name = "put_request")
 	public HttpResponse putRequest(@ToolParam(description = "The URL to send the PUT request to") String url,
 			@ToolParam(description = "The request body as a map of key-value pairs") Map<String, Object> body) {
-		logger.info("PUT request to: {} with body: {}", url, body);
+
 		ResponseEntity<Object> response = this.restClient.put()
 			.uri(url)
 			.contentType(MediaType.APPLICATION_JSON)
@@ -81,7 +76,7 @@ public class RestTools {
 	@Tool(description = "Sends a DELETE request to the specified URL and returns the response status code and body.",
 			name = "delete_request")
 	public HttpResponse deleteRequest(@ToolParam(description = "The URL to send the DELETE request to") String url) {
-		logger.info("DELETE request to: {}", url);
+
 		ResponseEntity<Object> response = this.restClient.delete().uri(url).retrieve().toEntity(Object.class);
 		Object responseBody = response.getBody();
 		return new HttpResponse(response.getStatusCode().value(), responseBody);
