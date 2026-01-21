@@ -76,10 +76,8 @@ public class RestTools {
 	@Tool(description = "Sends a DELETE request to the specified URL and returns the response status code and body.",
 			name = "delete_request")
 	public HttpResponse deleteRequest(@ToolParam(description = "The URL to send the DELETE request to") String url) {
-
 		ResponseEntity<Object> response = this.restClient.delete().uri(url).retrieve().toEntity(Object.class);
-		Object responseBody = response.getBody();
-		return new HttpResponse(response.getStatusCode().value(), responseBody);
+		return new HttpResponse(response.getStatusCode().value(), response.getBody());
 	}
 
 }
